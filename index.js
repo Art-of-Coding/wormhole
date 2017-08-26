@@ -115,11 +115,16 @@ class Wormhole extends EventEmitter {
         resolve(msg.result)
       })
 
-      this.send({
+      const msg = {
         msgId: msgId,
-        name: name,
-        args: args
-      }).catch(err => {
+        name: name
+      }
+
+      if (args && args.length) {
+        msg.args = args
+      }
+
+      this.send(msg).catch(err => {
         this._commandCallbacks.delete(msgId)
         reject(err)
       })
@@ -145,8 +150,8 @@ class Wormhole extends EventEmitter {
   }
 
   _handleCommand (msg) {
-    if (msg.name && msg.args) {
-      return this._dispatchCommand(msg.msgId, msg.name, msg.args)
+    if (msg.name) {
+      return this._dispatchCommand(msg.msgId, msg.name, msg.args || [])
     }
 
     if (msg.result || msg.error) {
@@ -184,8 +189,6 @@ class Wormhole extends EventEmitter {
     if (!name || typeof name !== 'string') {
       return sendResult(new TypeError('name must be a string'))
     }
-
-    if (!args) args = []
 
     if (!Array.isArray(args)) {
       return sendResult(new TypeError('args must be an array'))
