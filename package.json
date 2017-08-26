@@ -1,0 +1,27 @@
+{
+	"name": "@art-of-coding/wormhole",
+	"version": "0.1.0",
+	"description": "Simple but versatile IPC interface",
+	"author": {
+		"name": "Michiel van der Velde",
+		"email": "michiel@michielvdvelde.nl",
+		"url": "http://michielvdvelde.nl"
+	},
+	"license": "MIT",
+	"keywords": [],
+	"engines": {
+		"node": "=>4"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/Art-of-Coding/wormhole.git"
+	},
+	"bugs": {
+		"url": "https://github.com/Art-of-Coding/wormhole/issues"
+	},
+	"homepage": "http://wormhole.artofcoding.nl",
+	"dependencies": {
+		"shortid": "^2.2.8",
+		"ultron": "^1.1.0"
+	}
+}
