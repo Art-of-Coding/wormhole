@@ -30,7 +30,7 @@ class Wormhole extends EventEmitter {
           this.emit('error', err)
         })
       } else if (msg.event) {
-        this._events.emit.apply(this._events, [ msg.event ].concat(msg.args))
+        this._events.emit.apply(this._events, [ msg.event ].concat(msg.args || []))
       } else {
         this.emit('message', msg)
       }
@@ -83,7 +83,13 @@ class Wormhole extends EventEmitter {
    * @return {Promise}      Resolves on sent
    */
   event (event, ...args) {
-    return this.send({ event: event, args: args || [] })
+    const msg = { event: event }
+
+    if (args && args.length) {
+      msg.args = args
+    }
+
+    return this.send(msg)
   }
 
   /**
