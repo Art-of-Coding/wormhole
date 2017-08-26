@@ -46,7 +46,7 @@ wormhole.defineCommand('add', function (a, b) {
 })
 
 // Send the `quit` event to the child
-setTimeout(() => wormhole.event('exit'), 5000)
+setTimeout(() => wormhole.event('quit'), 5000)
 ```
 
 The child process:
