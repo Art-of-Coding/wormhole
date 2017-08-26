@@ -1,6 +1,6 @@
 {
 	"name": "@art-of-coding/wormhole",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"description": "Simple but versatile IPC interface",
 	"author": {
 		"name": "Michiel van der Velde",
@@ -8,7 +8,12 @@
 		"url": "http://michielvdvelde.nl"
 	},
 	"license": "MIT",
-	"keywords": [],
+	"keywords": [
+    "ipc",
+    "rpc",
+    "events",
+    "child_process"
+  ],
 	"engines": {
 		"node": "=>4"
 	},
