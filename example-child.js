@@ -1,7 +1,7 @@
 'use strict'
 
-const IPCChannel = require('./index')
-const channel = new IPCChannel()
+const Wormhole = require('./index')
+const channel = new Wormhole()
 
 channel.defineCommand('add', function (a, b) {
   const result = a + b

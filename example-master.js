@@ -1,10 +1,10 @@
 'use strict'
 
-const IPCChannel = require('./index')
+const Wormhole = require('./index')
 const childProcess = require('child_process')
 
 const child = childProcess.fork('./example-child.js')
-const channel = new IPCChannel(child)
+const channel = new Wormhole(child)
 
 channel.defineCommand('subtract', function (a, b) {
   const result = a - b
