@@ -26,7 +26,6 @@ class Wormhole extends EventEmitter {
     this._channelEvents.on('message', msg => {
       if (msg.msgId && shortid.isValid(msg.msgId)) {
         this._handleCommand(msg).catch(err => {
-          err.message = `Unable to handle command: ${err.message}`
           this.emit('error', err)
         })
       } else if (msg.event) {
