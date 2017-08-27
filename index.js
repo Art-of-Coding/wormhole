@@ -54,17 +54,8 @@ class Wormhole extends EventEmitter {
     })
 
     this._channelEvents.once(this._opts.disconnectEvent, () => {
-      this._events.removeAllListeners()
-      this._events = null
-
-      this._commands.clear()
-      this._commands = null
-
-      this._channel = null
-      this._channelEvents.destroy()
-      this._channelEvents = null
-
       this.emit('disconnect')
+      this._destroy()
     })
   }
 
@@ -256,6 +247,18 @@ class Wormhole extends EventEmitter {
     }
 
     return Promise.resolve(result)
+  }
+
+  _destroy () {
+    this._events.removeAllListeners()
+    this._events = null
+
+    this._commands.clear()
+    this._commands = null
+
+    this._channel = null
+    this._channelEvents.destroy()
+    this._channelEvents = null
   }
 }
 
