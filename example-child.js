@@ -1,21 +1,19 @@
 'use strict'
 
 const Wormhole = require('./index')
-const channel = new Wormhole()
 
-channel.defineCommand('add', function (a, b) {
-  const result = a + b
-  console.log(`[add]: ${a} + ${b} = ${result}`)
-  return result
+// Without the `channel` argument, `process` is selected by default
+const wormhole = new Wormhole()
+
+// Register a `quit` event handler
+wormhole.events.once('quit', () => {
+  process.exit(-1)
 })
 
-channel.events.on('hello', () => {
-  console.log('hello!')
-  channel.event('hello-back')
-})
+// Send and event
+wormhole.event('startup')
 
-setTimeout(() => {
-  channel.command('subtract', 6, 5).then(result => {
-    console.log(`subtract result: ${result}`)
-  }).catch(err => console.error(err))
-}, 2000)
+// Call a remote command
+wormhole.command('add', 5, 6).then(result => {
+  console.log(`5 + 6 = ${result}`)
+})

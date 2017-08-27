@@ -1,21 +1,20 @@
 'use strict'
 
-const Wormhole = require('./index')
 const childProcess = require('child_process')
+const Wormhole = require('./index')
 
 const child = childProcess.fork('./example-child.js')
-const channel = new Wormhole(child)
+const wormhole = new Wormhole(child)
 
-channel.defineCommand('subtract', function (a, b) {
-  const result = a - b
-  console.log(`[subtract]: ${a} - ${b} = ${result}`)
-  return result
+// Register a `startup` event handler
+wormhole.events.on('startup', () => {
+  console.log('received startup event!')
 })
 
-channel.event('hello')
-
-channel.events.on('hello-back', () => {
-  console.log('got hello back!')
+// Register an `add` command
+wormhole.defineCommand('add', function (a, b) {
+  return a + b
 })
 
-channel.command('add', 5, 6)
+// Send the `quit` event to the child
+setTimeout(() => wormhole.event('quit'), 5000)
