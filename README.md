@@ -79,8 +79,7 @@ Instantiates a new wormhole instance.
 
 * `channel`: The channel to use (default `process`)
 * `opts`: Wormhole options
-  * `stringifyJson`: Whether or not to stringify the JSON message before sending (default `false`)
-  * `parseJson`: Whether or not to parse incoming messages (defaults to the value of `stringifyJson`)
+  * `stringifyAndParseJson`: Whether or not to parse and stringify messages (default `false`)
   * `messageEvent`: The name of the message event (default `message`)
   * `disconnectEvent`: The name of the disconnect event (default `disconnect`)
 
