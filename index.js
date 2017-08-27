@@ -13,8 +13,14 @@ class Wormhole extends EventEmitter {
    * Instantiates a new Wormhole.
    * @param  {any} [channel=process] The communications channel
    */
-  constructor (channel = process) {
+  constructor (channel = process, opts = {}) {
     super()
+
+    this._opts = Object.assign({
+      stringifyJson: false,
+      messageEvent: 'message',
+      disconnectEvent: 'disconnect'
+    }, opts)
 
     this._events = new EventEmitter()
     this._commands = new Map()
@@ -23,7 +29,7 @@ class Wormhole extends EventEmitter {
     this._channel = channel
     this._channelEvents = new Ultron(channel)
 
-    this._channelEvents.on('message', msg => {
+    this._channelEvents.on(this._opts.messageEvent, msg => {
       if (msg.msgId && shortid.isValid(msg.msgId)) {
         this._handleCommand(msg).catch(err => {
           this.emit('error', err)
@@ -35,7 +41,7 @@ class Wormhole extends EventEmitter {
       }
     })
 
-    this._channelEvents.once('disconnect', () => {
+    this._channelEvents.once(this._opts.disconnectEvent, () => {
       this._events.removeAllListeners()
       this._events = null
 
@@ -152,6 +158,10 @@ class Wormhole extends EventEmitter {
     }
 
     return new Promise((resolve, reject) => {
+      if (this._opts.stringifyJson) {
+        msg = JSON.stringify(msg)
+      }
+
       this._channel.send(msg, err => {
         if (err) return reject(err)
         resolve()
