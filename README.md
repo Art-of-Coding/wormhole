@@ -97,9 +97,22 @@ Returns `true` if the channel is currently connected.
 
 Define a command.
 
+If the command is not a promise, the result will be cast into one. Throwing
+an `Error` (or subclassed) results in the rejection of the promise.
+
 * `name`: The name for this command
 * `fn`: The function for this command
 * `override`: Override existing command with this name (default `false`)
+
+```js
+wormhole.defineCommand('add', function (a, b) {
+  if (isNaN(a) || isNaN(b)) {
+    throw new TypeError('arguments must be numbers')
+  }
+
+  return a + b
+})
+```
 
 ### `wormhole.event (event, ...args)`
 
