@@ -18,9 +18,14 @@ class Wormhole extends EventEmitter {
 
     this._opts = Object.assign({
       stringifyJson: false,
+      parseJson: false,
       messageEvent: 'message',
       disconnectEvent: 'disconnect'
     }, opts)
+
+    if (this._opts.parseJson !== this._opts.stringifyJson) {
+      this._opts.parseJson = this._opts.stringifyJson
+    }
 
     this._events = new EventEmitter()
     this._commands = new Map()
@@ -30,6 +35,18 @@ class Wormhole extends EventEmitter {
     this._channelEvents = new Ultron(channel)
 
     this._channelEvents.on(this._opts.messageEvent, msg => {
+      if (this._opts.parseJson) {
+        if (typeof msg === 'string') {
+          try {
+            msg = JSON.parse(msg)
+          } catch (e) {
+            return this.emit('error', new Error('unable to parse message json'))
+          }
+        } else {
+          return this.emit('error', new Error('expected message to be a string'))
+        }
+      }
+
       if (msg.msgId && shortid.isValid(msg.msgId)) {
         this._handleCommand(msg).catch(err => {
           this.emit('error', err)
