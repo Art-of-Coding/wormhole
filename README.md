@@ -95,6 +95,8 @@ Returns `true` if the channel is currently connected.
 
 ### `wormhole.defineCommand (name, fn, override = false)`
 
+### `wormhole.define (name, fn, override = false)`
+
 Define a command.
 
 If the command is not a promise, the result will be cast into one. Throwing
