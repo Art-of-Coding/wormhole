@@ -42,10 +42,14 @@ class Wormhole extends EventEmitter {
         }
       }
 
-      if (msg.msgId && shortid.isValid(msg.msgId)) {
-        this._handleCommand(msg).catch(err => {
-          this.emit('error', err)
-        })
+      if (msg.msgId) {
+        if (!shortid.isValid(msg.msgId)) {
+          this.emit('error', new Error('received invalid message id'))
+        } else {
+          this._handleCommand(msg).catch(err => {
+            this.emit('error', err)
+          })
+        }
       } else if (msg.event) {
         this._events.emit.apply(this._events, [ msg.event ].concat(msg.args || []))
       } else {
