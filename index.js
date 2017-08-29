@@ -190,20 +190,16 @@ class Wormhole extends EventEmitter {
   }
 
   _dispatchCommand (msgId, name, args) {
-    const sendResult = (result, success = true) => {
-      if (success && result instanceof Error) {
-        success = false
-      }
-
+    const sendResult = result => {
       const toSend = { msgId: msgId }
 
-      if (success) {
-        toSend.result = result
-      } else {
+      if (result instanceof Error) {
         toSend.error = {
           name: result.name || 'CallError',
           message: result.message || 'No message provided'
         }
+      } else {
+        toSend.result = result
       }
 
       return this.send(toSend)
@@ -224,7 +220,7 @@ class Wormhole extends EventEmitter {
     return this._callCommand(name, args).then(result => {
       return sendResult(result)
     }).catch(error => {
-      return sendResult(error, false)
+      return sendResult(error)
     })
   }
 
