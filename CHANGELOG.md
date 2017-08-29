@@ -1,6 +1,14 @@
 # Change Log
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## 0.3.0
+
+* Refactor `_dispatchCommand`
+* Refactor message listener
+* Emit error when an invalid message id is received
+* Move disconnect/destroy logic to separate method
+* Collapse `stringifyJson` and `parseJson` options
+
 ## 0.2.0
 
 * Add `define()` alias for `defineCommand()`
