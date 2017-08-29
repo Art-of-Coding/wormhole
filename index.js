@@ -30,31 +30,27 @@ class Wormhole extends EventEmitter {
     this._channelEvents = new Ultron(channel)
 
     this._channelEvents.on(this._opts.messageEvent, msg => {
-      if (this._opts.stringifyAndParseJson) {
-        if (typeof msg === 'string') {
-          try {
-            msg = JSON.parse(msg)
-          } catch (e) {
-            return this.emit('error', new Error('unable to parse message json'))
-          }
-        } else {
-          return this.emit('error', new Error('expected message to be a string'))
-        }
+      if (this._opts.stringifyAndParseJson && typeof msg === 'string') {
+        try {
+          msg = JSON.parse(msg)
+        } catch (e) { }
       }
 
       if (msg.msgId) {
         if (!shortid.isValid(msg.msgId)) {
-          this.emit('error', new Error('received invalid message id'))
-        } else {
-          this._handleCommand(msg).catch(err => {
-            this.emit('error', err)
-          })
+          return this.emit('error', new Error('received invalid message id'))
         }
-      } else if (msg.event) {
-        this._events.emit.apply(this._events, [ msg.event ].concat(msg.args || []))
-      } else {
-        this.emit('message', msg)
+
+        return this._handleCommand(msg).catch(err => {
+          this.emit('error', err)
+        })
       }
+
+      if (msg.event) {
+        return this._events.emit.apply(this._events, [ msg.event ].concat(msg.args || []))
+      }
+
+      this.emit('message', msg)
     })
 
     this._channelEvents.once(this._opts.disconnectEvent, () => {
