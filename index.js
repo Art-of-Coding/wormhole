@@ -101,6 +101,10 @@ class Wormhole extends EventEmitter {
    * @return {Promise}      Resolves on sent
    */
   event (event, ...args) {
+    if (!event || typeof event !== 'string') {
+      throw new TypeError('event must be a string')
+    }
+
     const msg = { event: event }
 
     if (args && args.length) {
