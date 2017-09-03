@@ -61,6 +61,7 @@ class Wormhole extends EventEmitter {
 
   get events () { return this._events }
   get connected () { return this._channel && this._channel.connected }
+  get pendingCommands () { return this._commandCallbacks.size }
 
   /**
    * Defines a command.
