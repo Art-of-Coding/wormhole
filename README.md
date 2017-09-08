@@ -97,6 +97,10 @@ wormhole.events.on('some-event', () => {
 
 Returns `true` if the channel is currently connected.
 
+### `wormhole.pendingCommands`
+
+Returns the amount of pending command calls.
+
 ### `wormhole.defineCommand (name, fn, override = false)`
 
 ### `wormhole.define (name, fn, override = false)`

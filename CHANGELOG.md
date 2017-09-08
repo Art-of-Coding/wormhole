@@ -1,6 +1,11 @@
 # Change Log
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## 0.4.0
+
+* Add `pendingCommands`
+* Add type check to `event`
+
 ## 0.3.0
 
 * Refactor `_dispatchCommand`
