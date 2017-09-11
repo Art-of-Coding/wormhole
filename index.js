@@ -4,6 +4,8 @@ const EventEmitter = require('events').EventEmitter
 const Ultron = require('ultron')
 const shortid = require('shortid')
 
+const CommandCallbackMap = require('./lib/CommandCallbackMap')
+
 /**
  * Represents a Wormhole class.
  * @type {Class}
@@ -24,7 +26,7 @@ class Wormhole extends EventEmitter {
 
     this._events = new EventEmitter()
     this._commands = new Map()
-    this._commandCallbacks = new Map()
+    this._commandCallbacks = new CommandCallbackMap()
 
     this._channel = channel
     this._channelEvents = new Ultron(channel)
@@ -130,8 +132,6 @@ class Wormhole extends EventEmitter {
       const msgId = shortid.generate()
 
       this._commandCallbacks.set(msgId, msg => {
-        this._commandCallbacks.delete(msgId)
-
         if (msg.error) {
           return reject(msg.error)
         }
@@ -148,10 +148,15 @@ class Wormhole extends EventEmitter {
         msg.args = args
       }
 
-      this.send(msg).catch(err => {
+      try {
+        this.send(msg).catch(err => {
+          this._commandCallbacks.delete(msgId)
+          reject(err)
+        })
+      } catch (e) {
         this._commandCallbacks.delete(msgId)
-        reject(err)
-      })
+        reject(e)
+      }
     })
   }
 
@@ -186,7 +191,7 @@ class Wormhole extends EventEmitter {
       if (!this._commandCallbacks.has(msg.msgId)) {
         return Promise.reject(new Error(`unknown msgId received (${msg.msgId})`))
       } else {
-        this._commandCallbacks.get(msg.msgId)(msg)
+        this._commandCallbacks.act(msg.msgId)(msg)
         return Promise.resolve()
       }
     }
