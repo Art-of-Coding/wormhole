@@ -188,12 +188,13 @@ class Wormhole extends EventEmitter {
     }
 
     if (msg.result || msg.error) {
-      if (!this._commandCallbacks.has(msg.msgId)) {
-        return Promise.reject(new Error(`unknown msgId received (${msg.msgId})`))
-      } else {
+      try {
         this._commandCallbacks.act(msg.msgId, msg)
-        return Promise.resolve()
+      } catch (e) {
+        return Promise.reject(e)
       }
+
+      return Promise.resolve()
     }
 
     return Promise.reject(new Error('invalid rpc message received'))
