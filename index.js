@@ -191,7 +191,7 @@ class Wormhole extends EventEmitter {
       if (!this._commandCallbacks.has(msg.msgId)) {
         return Promise.reject(new Error(`unknown msgId received (${msg.msgId})`))
       } else {
-        this._commandCallbacks.act(msg.msgId)(msg)
+        this._commandCallbacks.act(msg.msgId, msg)
         return Promise.resolve()
       }
     }
