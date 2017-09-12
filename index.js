@@ -70,10 +70,11 @@ class Wormhole extends EventEmitter {
    * Defines a command.
    * @param  {String}   name             The command name
    * @param  {Function} fn               The command function
+   * @param  {Any}      [context=null]   The command context
    * @param  {Boolean}  [override=false] Override command
    */
-  define (name, fn, override = false) {
-    return this.defineCommand(name, fn, override)
+  define (name, fn, context = null, override = false) {
+    return this.defineCommand(name, fn, context, override)
   }
 
   /**
