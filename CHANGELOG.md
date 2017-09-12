@@ -1,6 +1,12 @@
 # Change Log
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## 0.5.0
+
+* Add `context` parameter to `define()` and `defineCommand()`
+* Use `shortid` for validation in `CommandCallbackMap`
+* Simplify command callback handling
+
 ## 0.4.0
 
 * Add `pendingCommands`
