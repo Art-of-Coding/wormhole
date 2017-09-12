@@ -101,9 +101,9 @@ Returns `true` if the channel is currently connected.
 
 Returns the amount of pending command calls.
 
-### `wormhole.defineCommand (name, fn, override = false)`
+### `wormhole.defineCommand (name, fn, context = null, override = false)`
 
-### `wormhole.define (name, fn, override = false)`
+### `wormhole.define (name, fn, context = null, override = false)`
 
 Define a command.
 
@@ -112,6 +112,7 @@ an `Error` (or subclassed) results in the rejection of the promise.
 
 * `name`: The name for this command
 * `fn`: The function for this command
+* `context`: The command context
 * `override`: Override existing command with this name (default `false`)
 
 ```js
