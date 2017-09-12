@@ -4,6 +4,7 @@ const EventEmitter = require('events').EventEmitter
 const Ultron = require('ultron')
 const shortid = require('shortid')
 
+const CommandMap = require('./lib/CommandMap')
 const CommandCallbackMap = require('./lib/CommandCallbackMap')
 
 /**
@@ -25,7 +26,7 @@ class Wormhole extends EventEmitter {
     }, opts)
 
     this._events = new EventEmitter()
-    this._commands = new Map()
+    this._commands = new CommandMap()
     this._commandCallbacks = new CommandCallbackMap()
 
     this._channel = channel
@@ -79,9 +80,10 @@ class Wormhole extends EventEmitter {
    * Defines a command.
    * @param  {String}   name             The command name
    * @param  {Function} fn               The command function
+   * @param  {Any}      [context=null]   The command context
    * @param  {Boolean}  [override=false] Override command
    */
-  defineCommand (name, fn, override = false) {
+  defineCommand (name, fn, context = null, override = false) {
     if (!name || typeof name !== 'string') {
       throw new TypeError('name must be a string')
     }
@@ -94,7 +96,7 @@ class Wormhole extends EventEmitter {
       throw new Error(`${name} already defined`)
     }
 
-    this._commands.set(name, fn)
+    this._commands.set(name, fn, context)
   }
 
   /**
@@ -240,7 +242,7 @@ class Wormhole extends EventEmitter {
     let result = null
 
     try {
-      result = command.apply(null, args)
+      result = command.fn.apply(command.context, args)
     } catch (e) {
       result = e
     }
