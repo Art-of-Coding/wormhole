@@ -56,10 +56,12 @@ class Wormhole extends EventEmitter {
       this.emit('message', msg)
     })
 
-    this._channelEvents.once(this._opts.disconnectEvent, () => {
-      this.emit('disconnect')
-      this._destroy()
-    })
+    if (this._opts.disconnectEvent) {
+      this._channelEvents.once(this._opts.disconnectEvent, () => {
+        this.destroy()
+        this.emit('disconnect')
+      })
+    }
   }
 
   get events () { return this._events }
@@ -185,6 +187,17 @@ class Wormhole extends EventEmitter {
     })
   }
 
+  /**
+   * Destroys the channel.
+   */
+  destroy () {
+    if (!this._channel) return
+
+    this._channel = null
+    this._channelEvents.destroy()
+    this._channelEvents = null
+  }
+
   _handleCommand (msg) {
     if (msg.name) {
       return this._dispatchCommand(msg.msgId, msg.name, msg.args || [])
@@ -257,18 +270,6 @@ class Wormhole extends EventEmitter {
     }
 
     return Promise.resolve(result)
-  }
-
-  _destroy () {
-    this._events.removeAllListeners()
-    this._events = null
-
-    this._commands.clear()
-    this._commands = null
-
-    this._channel = null
-    this._channelEvents.destroy()
-    this._channelEvents = null
   }
 }
 
