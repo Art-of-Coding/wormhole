@@ -114,7 +114,7 @@ an `Error` (or subclassed) results in the rejection of the promise.
 * `override`: Override existing command with this name (default `false`)
 
 ```js
-wormhole.defineCommand('add', function (a, b) {
+wormhole.define('add', function (a, b) {
   if (isNaN(a) || isNaN(b)) {
     throw new TypeError('arguments must be numbers')
   }
