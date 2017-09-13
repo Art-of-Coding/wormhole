@@ -81,7 +81,7 @@ Instantiates a new wormhole instance.
 * `opts`: Wormhole options
   * `stringifyAndParseJson`: Whether or not to parse and stringify messages (default `false`)
   * `messageEvent`: The name of the message event (default `message`)
-  * `disconnectEvent`: The name of the disconnect event (default `disconnect`)
+  * `disconnectEvent`: The name of the disconnect event (default `disconnect`, set to `false` to disable)
 
 ### `wormhole.events`
 
@@ -100,8 +100,6 @@ Returns `true` if the channel is currently connected.
 ### `wormhole.pendingCommands`
 
 Returns the amount of pending command calls.
-
-### `wormhole.defineCommand (name, fn, context = null, override = false)`
 
 ### `wormhole.define (name, fn, context = null, override = false)`
 
@@ -150,6 +148,11 @@ wormhole.command('add', 5, 6).then(result => {
 Send a message over the channel.
 
 * `msg`: The message primitive or object
+
+### `wormhole.destroy()`
+
+Destroys the channel and associated listeners. After calling this, the instance
+is no longer connected and usable.
 
 [![Standard - JavaScript Style Guide](https://img.shields.io/badge/code%20style-standard-brightgreen.svg)](http://standardjs.com/)
 
