@@ -241,11 +241,10 @@ class Wormhole extends EventEmitter {
   }
 
   _callCommand (name, args) {
-    const command = this._commands.get(name)
     let result = null
 
     try {
-      result = command.fn.apply(command.context, args)
+      result = this._commands.act(name, args)
     } catch (e) {
       result = e
     }
