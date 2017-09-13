@@ -76,17 +76,6 @@ class Wormhole extends EventEmitter {
    * @param  {Boolean}  [override=false] Override command
    */
   define (name, fn, context = null, override = false) {
-    return this.defineCommand(name, fn, context, override)
-  }
-
-  /**
-   * Defines a command.
-   * @param  {String}   name             The command name
-   * @param  {Function} fn               The command function
-   * @param  {Any}      [context=null]   The command context
-   * @param  {Boolean}  [override=false] Override command
-   */
-  defineCommand (name, fn, context = null, override = false) {
     if (!name || typeof name !== 'string') {
       throw new TypeError('name must be a string')
     }
