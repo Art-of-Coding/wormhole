@@ -1,6 +1,13 @@
 # Change Log
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## 1.0.0
+
+* Rewrote the entire thing
+* Remove 'support' for channels other than `process` or `ChildProcess`
+* Refactor the JSON-based protocol used (**this results in incompatibility with v0.x.x**)
+* Remove `defineCommand()`. Use `define()` instead
+
 ## 0.5.0
 
 * Add `context` parameter to `define()` and `defineCommand()`

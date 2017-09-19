@@ -62,7 +62,7 @@ wormhole.events.once('quit', () => {
   process.exit(-1)
 })
 
-// Send and event
+// Send an event
 wormhole.event('startup')
 
 // Call a remote command
@@ -73,15 +73,22 @@ wormhole.command('add', 5, 6).then(result => {
 
 ## API
 
-### `new Wormhole(channel = process, opts = {})`
+> This API is applicable to version 1.0.x! For the 0.x.x documentation,
+> [see here](https://github.com/Art-of-Coding/wormhole/blob/c15d6146160e9d3f5e2dcdc326043ad26666be47/README.md).
+
+### `new Wormhole(channel = process)`
 
 Instantiates a new wormhole instance.
 
-* `channel`: The channel to use (default `process`)
-* `opts`: Wormhole options
-  * `stringifyAndParseJson`: Whether or not to parse and stringify messages (default `false`)
-  * `messageEvent`: The name of the message event (default `message`)
-  * `disconnectEvent`: The name of the disconnect event (default `disconnect`, set to `false` to disable)
+* `channel`: The channel to use (must either be `process` or an instance of `child_process.ChildProcess`)
+
+## `wormhole.connected`
+
+Returns `true` if the channel is connected.
+
+## `wormhole.pendingCallbacks`
+
+Returns the amount of pending command callbacks.
 
 ### `wormhole.events`
 
@@ -93,15 +100,7 @@ wormhole.events.on('some-event', () => {
 })
 ```
 
-### `wormhole.connected`
-
-Returns `true` if the channel is currently connected.
-
-### `wormhole.pendingCommands`
-
-Returns the amount of pending command calls.
-
-### `wormhole.define (name, fn, context = null, override = false)`
+### `wormhole.define (name, fn, context)`
 
 Define a command.
 
@@ -110,8 +109,7 @@ an `Error` (or subclassed) results in the rejection of the promise.
 
 * `name`: The name for this command
 * `fn`: The function for this command
-* `context`: The command context
-* `override`: Override existing command with this name (default `false`)
+* `context`: The command context (optional)
 
 ```js
 wormhole.define('add', function (a, b) {
@@ -143,16 +141,16 @@ wormhole.command('add', 5, 6).then(result => {
 })
 ```
 
-### `wormhole.send (msg)`
+### `wormhole.write (message)`
 
-Send a message over the channel.
+Writes a message over the channel.
 
-* `msg`: The message primitive or object
+* `message`: The message primitive or object
 
-### `wormhole.destroy()`
+### `wormhole.disconnect()`
 
-Destroys the channel and associated listeners. After calling this, the instance
-is no longer connected and usable.
+Disconnects the channel and releases all resources. After calling this, the
+instance is no longer usable.
 
 [![Standard - JavaScript Style Guide](https://img.shields.io/badge/code%20style-standard-brightgreen.svg)](http://standardjs.com/)
 

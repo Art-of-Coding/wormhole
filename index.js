@@ -1,81 +1,53 @@
 'use strict'
 
 const EventEmitter = require('events').EventEmitter
+const ChildProcess = require('child_process').ChildProcess
+
 const Ultron = require('ultron')
 const shortid = require('shortid')
 
-const CommandMap = require('./lib/CommandMap')
-const CommandCallbackMap = require('./lib/CommandCallbackMap')
-
-/**
- * Represents a Wormhole class.
- * @type {Class}
- */
 class Wormhole extends EventEmitter {
-  /**
-   * Instantiates a new Wormhole.
-   * @param  {any} [channel=process] The communications channel
-   */
-  constructor (channel = process, opts = {}) {
+  constructor (channel = process) {
     super()
 
-    this._opts = Object.assign({
-      stringifyAndParseJson: false,
-      messageEvent: 'message',
-      disconnectEvent: 'disconnect'
-    }, opts)
+    if (channel !== process && !(channel instanceof ChildProcess)) {
+      throw new TypeError('channel needs to be \'process\' or an instance of child_process.ChildProcess')
+    }
 
-    this._events = new EventEmitter()
-    this._commands = new CommandMap()
-    this._commandCallbacks = new CommandCallbackMap()
+    if (!channel.connected) {
+      throw new Error('Not connected')
+    }
 
     this._channel = channel
-    this._channelEvents = new Ultron(channel)
 
-    this._channelEvents.on(this._opts.messageEvent, msg => {
-      if (this._opts.stringifyAndParseJson && typeof msg === 'string') {
-        try {
-          msg = JSON.parse(msg)
-        } catch (e) { }
-      }
+    this._commands = new Map()
+    this._commandCallbacks = new Map()
+    this._events = new EventEmitter()
 
-      if (msg.msgId) {
-        if (!shortid.isValid(msg.msgId)) {
-          return this.emit('error', new Error('received invalid message id'))
-        }
-
-        return this._handleCommand(msg).catch(err => {
-          this.emit('error', err)
-        })
-      }
-
-      if (msg.event) {
-        return this._events.emit.apply(this._events, [ msg.event ].concat(msg.args || []))
-      }
-
-      this.emit('message', msg)
-    })
-
-    if (this._opts.disconnectEvent) {
-      this._channelEvents.once(this._opts.disconnectEvent, () => {
-        this.destroy()
-        this.emit('disconnect')
-      })
-    }
+    this._channelEvents = new Ultron(this._channel)
+    this._channelEvents.on('message', this._onMessage.bind(this))
+    this._channelEvents.once('disconnect', this._onDisconnect.bind(this))
   }
 
-  get events () { return this._events }
-  get connected () { return this._channel && this._channel.connected }
-  get pendingCommands () { return this._commandCallbacks.size }
+  get connected () {
+    return this._channel && this._channel.connected
+  }
+
+  get pendingCallbacks () {
+    return this._commandCallbacks.size
+  }
+
+  get events () {
+    return this._events
+  }
 
   /**
-   * Defines a command.
-   * @param  {String}   name             The command name
-   * @param  {Function} fn               The command function
-   * @param  {Any}      [context=null]   The command context
-   * @param  {Boolean}  [override=false] Override command
+   * Defines a command so it can be called from the other side.
+   * @param  {String}   name    The name of the command
+   * @param  {Function} fn      The command itself
+   * @param  {any}      context The command context
    */
-  define (name, fn, context = null, override = false) {
+  define (name, fn, context) {
     if (!name || typeof name !== 'string') {
       throw new TypeError('name must be a string')
     }
@@ -84,38 +56,43 @@ class Wormhole extends EventEmitter {
       throw new TypeError('fn must be a function')
     }
 
-    if (!override && this._commands.has(name)) {
-      throw new Error(`${name} already defined`)
+    if (this._commands.has(name)) {
+      throw new Error(`'${name}' already defined`)
     }
 
-    this._commands.set(name, fn, context)
+    this._commands.set(name, { fn: fn, context: context })
   }
 
   /**
-   * Sends an event.
-   * @param  {String} event The name of the event
-   * @param  {any} ...args  The event's arguments
-   * @return {Promise}      Resolves on sent
+   * Writes an event with optional arguments.
+   * @param  {String}  name The name of the event
+   * @param  {any}  ...args The event arguments
+   * @return {Promise}      Resolves when the event is sent
    */
-  event (event, ...args) {
-    if (!event || typeof event !== 'string') {
-      throw new TypeError('event must be a string')
+  event (name, ...args) {
+    if (!name || typeof name !== 'string') {
+      throw new TypeError('name must be a string')
     }
 
-    const msg = { event: event }
+    const request = {
+      cmd: 'event',
+      data: {
+        name: name
+      }
+    }
 
     if (args && args.length) {
-      msg.args = args
+      request.data.args = args
     }
 
-    return this.send(msg)
+    return this.write(request)
   }
 
   /**
-   * Calls a remote command.
-   * @param  {String} name The name of the command
-   * @param  {and} ...args The command's arguments
-   * @return {Promise}     Resolves with the command's result
+   * Calls a command from the other side.
+   * @param  {String}  name The name of the command
+   * @param  {any}  ...args The command arguments
+   * @return {Promise}      Resolves with the result
    */
   command (name, ...args) {
     if (!name || typeof name !== 'string') {
@@ -123,133 +100,154 @@ class Wormhole extends EventEmitter {
     }
 
     return new Promise((resolve, reject) => {
-      const msgId = shortid.generate()
+      if (!this.connected) {
+        return reject(new Error('Not connected'))
+      }
 
-      this._commandCallbacks.set(msgId, msg => {
-        if (msg.error) {
-          return reject(msg.error)
+      const message = {
+        id: shortid.generate(),
+        cmd: 'call_command',
+        data: {
+          name: name
         }
-
-        resolve(msg.result)
-      })
-
-      const msg = {
-        msgId: msgId,
-        name: name
       }
 
       if (args && args.length) {
-        msg.args = args
+        message.data.args = args
       }
 
-      try {
-        this.send(msg).catch(err => {
-          this._commandCallbacks.delete(msgId)
-          reject(err)
-        })
-      } catch (e) {
-        this._commandCallbacks.delete(msgId)
-        reject(e)
-      }
-    })
-  }
+      this._commandCallbacks.set(message.id, response => {
+        if (response.status !== 'ok') {
+          reject(new Error(response.data.message || `Invalid status (${response.status || 'none'})`))
+        } else {
+          resolve(response.data.result)
+        }
+      })
 
-  /**
-   * Sends a message.
-   * @param  {Object} msg The message to send
-   * @return {Promise}    Resolves on sent
-   */
-  send (msg) {
-    if (!this.connected) {
-      throw new Error('ipc not connected')
-    }
-
-    return new Promise((resolve, reject) => {
-      if (this._opts.stringifyAndParseJson && typeof msg === 'object') {
-        msg = JSON.stringify(msg)
-      }
-
-      this._channel.send(msg, err => {
-        if (err) return reject(err)
-        resolve()
+      this.write(message).catch(err => {
+        this._commandCallbacks.delete(message.id)
+        reject(err)
       })
     })
   }
 
   /**
-   * Destroys the channel.
+   * Writes a message over the channel.
+   * @param  {*} message The message to send
    */
-  destroy () {
-    if (!this._channel) return
-
-    this._channel = null
-    this._channelEvents.destroy()
-    this._channelEvents = null
-  }
-
-  _handleCommand (msg) {
-    if (msg.name) {
-      return this._dispatchCommand(msg.msgId, msg.name, msg.args || [])
+  write (message) {
+    if (message === undefined) {
+      throw new TypeError('message must not be undefined')
     }
 
-    if (msg.result || msg.error) {
-      try {
-        this._commandCallbacks.act(msg.msgId, msg)
-      } catch (e) {
-        return Promise.reject(e)
+    if (typeof message === 'object' && !Object.keys(message).length) {
+      throw new TypeError('message must not be empty')
+    }
+
+    return new Promise((resolve, reject) => {
+      if (!this.connected) {
+        return reject(new Error('channel not connected'))
       }
 
-      return Promise.resolve()
-    }
-
-    return Promise.reject(new Error('invalid rpc message received'))
-  }
-
-  _dispatchCommand (msgId, name, args) {
-    const sendResult = result => {
-      const toSend = { msgId: msgId }
-
-      if (result instanceof Error) {
-        toSend.error = {
-          name: result.name || 'CallError',
-          message: result.message || 'No message provided'
-        }
-      } else {
-        toSend.result = result
-      }
-
-      return this.send(toSend)
-    }
-
-    if (!name || typeof name !== 'string') {
-      return sendResult(new TypeError('name must be a string'))
-    }
-
-    if (!Array.isArray(args)) {
-      return sendResult(new TypeError('args must be an array'))
-    }
-
-    if (!this._commands.has(name)) {
-      return sendResult(new Error(`${name} is not defined`))
-    }
-
-    return this._callCommand(name, args).then(result => {
-      return sendResult(result)
-    }).catch(error => {
-      return sendResult(error)
+      this._channel.send(message, () => resolve())
     })
   }
 
-  _callCommand (name, args) {
+  /**
+   * Disconnects the channel.
+   */
+  disconnect () {
+    if (!this.connected) {
+      throw new Error('Not connected')
+    }
+
+    return this._channel.disconnect()
+  }
+
+  _onMessage (message) {
+    if (message.requestId) {
+      if (!this._executeCommandCallback(message)) {
+        return setImmediate(() => this.emit('error', new Error('unknown requestId received')))
+      }
+    }
+
+    if (message.cmd) {
+      switch (message.cmd) {
+        case 'call_command':
+          return this._handleCommandCall(message.data.name, message.data.args || [], message.id).catch(err => {
+            setImmediate(() => this.emit('error', new Error(`unable to execute command: ${err.message}`)))
+          })
+        case 'event':
+          return setImmediate(() => this._events.emit.apply(this._events, [ message.data.name ].concat(message.data.args || [])))
+        default:
+          return setImmediate(() => this.emit('error', new Error('invalid command received')))
+      }
+    }
+
+    this.emit('message', message)
+  }
+
+  _executeCommandCallback (message) {
+    if (!this._commandCallbacks.has(message.requestId)) {
+      return false
+    }
+
+    const cb = this._commandCallbacks.get(message.requestId)
+    this._commandCallbacks.delete(message.requestId)
+
+    setImmediate(() => cb(message))
+    return true
+  }
+
+  _handleCommandCall (name, args, id) {
+    const response = {
+      requestId: id,
+      data: {}
+    }
+
+    const writeResult = result => {
+      if (result instanceof Error) {
+        response.status = 'error'
+        response.data.name = result.name || 'Error'
+        response.data.message = result.message
+      } else {
+        response.status = 'ok'
+        response.data.result = result
+      }
+
+      return this.write(response)
+    }
+
+    if (!name || typeof name !== 'string') {
+      return writeResult(new TypeError('name must be a string'))
+    }
+
+    if (!args || !Array.isArray(args)) {
+      return writeResult(new TypeError('args must be an array'))
+    }
+
+    if (!this._commands.has(name)) {
+      return writeResult(new Error(`'${name}' is not defined`))
+    }
+
+    return this._call(name, args).then(result => {
+      return writeResult(result)
+    }).catch(err => {
+      return writeResult(err)
+    })
+  }
+
+  _call (name, args) {
+    const cmd = this._commands.get(name)
     let result = null
 
     try {
-      result = this._commands.act(name, args)
+      result = cmd.fn.apply(cmd.context, args)
     } catch (e) {
       result = e
     }
 
-    if (result.then && typeof result.then === 'function') {
+    if (result.then && result.then === 'function') {
       return result
     }
 
@@ -258,6 +256,15 @@ class Wormhole extends EventEmitter {
     }
 
     return Promise.resolve(result)
+  }
+
+  _onDisconnect () {
+    if (this.pendingCallbacks) this._commandCallbacks.clear()
+    this._channelEvents.destroy()
+    this._channelEvents = null
+    this._channel = null
+
+    this.emit('disconnect')
   }
 }
 

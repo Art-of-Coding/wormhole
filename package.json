@@ -1,6 +1,6 @@
 {
 	"name": "@art-of-coding/wormhole",
-	"version": "0.5.0",
+	"version": "1.0.0",
 	"description": "Simple but versatile IPC interface",
 	"author": {
 		"name": "Michiel van der Velde",
@@ -12,7 +12,8 @@
 		"ipc",
 		"rpc",
 		"events",
-		"child_process"
+		"child_process",
+    "process"
 	],
 	"engines": {
 		"node": "=>4"
@@ -24,7 +25,7 @@
 	"bugs": {
 		"url": "https://github.com/Art-of-Coding/wormhole/issues"
 	},
-	"homepage": "http://wormhole.artofcoding.nl",
+	"homepage": "https://blog.artofcoding.nl/2017/08/26/enter-the-wormhole-ipc-goodness/",
 	"dependencies": {
 		"shortid": "^2.2.8",
 		"ultron": "^1.1.0"
