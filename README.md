@@ -82,11 +82,11 @@ Instantiates a new wormhole instance.
 
 * `channel`: The channel to use (must either be `process` or an instance of `child_process.ChildProcess`)
 
-## `wormhole.connected`
+### `wormhole.connected`
 
 Returns `true` if the channel is connected.
 
-## `wormhole.pendingCallbacks`
+### `wormhole.pendingCallbacks`
 
 Returns the amount of pending command callbacks.
 
