@@ -41,7 +41,7 @@ wormhole.events.on('startup', () => {
 })
 
 // Register an `add` command
-wormhole.defineCommand('add', function (a, b) {
+wormhole.define('add', function (a, b) {
   return a + b
 })
 
