@@ -76,7 +76,7 @@ wormhole.command('add', 5, 6).then(result => {
 > This API is applicable to version 1.0.x! For the 0.x.x documentation,
 > [see here](https://github.com/Art-of-Coding/wormhole/blob/c15d6146160e9d3f5e2dcdc326043ad26666be47/README.md).
 
-### `new Wormhole(channel = process)`
+### `new Wormhole (channel = process)`
 
 Instantiates a new wormhole instance.
 
@@ -147,7 +147,7 @@ Writes a message over the channel.
 
 * `message`: The message primitive or object
 
-### `wormhole.disconnect()`
+### `wormhole.disconnect ()`
 
 Disconnects the channel and releases all resources. After calling this, the
 instance is no longer usable.
