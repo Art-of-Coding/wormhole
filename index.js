@@ -167,8 +167,9 @@ class Wormhole extends EventEmitter {
   _onMessage (message) {
     if (message.requestId) {
       if (!this._executeCommandCallback(message)) {
-        return setImmediate(() => this.emit('error', new Error('unknown requestId received')))
+        setImmediate(() => this.emit('error', new Error('unknown requestId received')))
       }
+      return
     }
 
     if (message.cmd) {
