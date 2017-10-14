@@ -4,7 +4,7 @@ import { ChildProcess } from 'child_process'
 import { EventEmitter } from 'events'
 import Ultron from 'ultron'
 
-export declare class Wormhole {
+export declare class Wormhole extends EventEmitter {
   private _channel: NodeJS.Process | ChildProcess
   private _commands: Map<string, any>
   private _commandCallbacks: Map<string, Function>
