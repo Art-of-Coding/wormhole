@@ -13,8 +13,9 @@
 		"rpc",
 		"events",
 		"child_process",
-    "process"
+		"process"
 	],
+	"types": "types.d.ts",
 	"engines": {
 		"node": "=>4"
 	},
@@ -27,6 +28,7 @@
 	},
 	"homepage": "https://blog.artofcoding.nl/2017/08/26/enter-the-wormhole-ipc-goodness/",
 	"dependencies": {
+		"@types/node": "^8.0.34",
 		"shortid": "^2.2.8",
 		"ultron": "^1.1.0"
 	}
