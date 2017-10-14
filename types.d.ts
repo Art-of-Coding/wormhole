@@ -2,8 +2,15 @@
 
 import { ChildProcess } from 'child_process'
 import { EventEmitter } from 'events'
+import Ultron from 'ultron'
 
-declare class Wormhole {
+export declare class Wormhole {
+  private _channel: NodeJS.Process | ChildProcess
+  private _commands: Map<string, any>
+  private _commandCallbacks: Map<string, Function>
+  private _events: EventEmitter
+  private _channelEvents: Ultron
+
   /**
    * Instantiates a new Wormhole instance for `process` or the given `ChildProcess`.
    * @param  {NodeJS.Process|ChildProcess} channel The channel to use
@@ -15,19 +22,19 @@ declare class Wormhole {
    * The connection state.
    * @return {boolean} True if the channel is connected
    */
-  public get connected (): boolean
+  public readonly connected: boolean
 
   /**
    * The amount of pending command callbacks
    * @return {number} Number of pending callbacks
    */
-  public get pendingCallbacks (): number
+  public readonly pendingCallbacks: number
 
   /**
    * Getter to get the events `EventEmitter`.
    * @return {EventEmitter} The events emitter
    */
-  public get events (): EventEmitter
+  public readonly events: EventEmitter
 
   /**
    * Defines a command so it can be called from the other side.
@@ -72,5 +79,3 @@ declare class Wormhole {
   private _call (name: string, args: any[]): Promise<any>
   private _onDisconnect (): void
 }
-
-export = Wormhole
