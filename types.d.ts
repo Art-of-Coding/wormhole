@@ -42,7 +42,7 @@ export declare class Wormhole {
    * @param  {Function} fn      The command itself
    * @param  {any}      context The command context
    */
-  public define (name: string, fn: Function, context: any): void
+  public define (name: string, fn: Function, context?: any): void
 
   /**
    * Writes an event with optional arguments.
