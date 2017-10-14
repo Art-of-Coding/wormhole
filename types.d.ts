@@ -8,7 +8,7 @@ declare class Wormhole {
    * @param  {NodeJS.Process|ChildProcess} channel The channel to use
    * @return {Wormhole}                            The new Wormhole instance
    */
-  public constructor (channel: NodeJS.Process|ChildProcess)
+  public constructor (channel?: NodeJS.Process|ChildProcess)
 
   /**
    * Defines a command so it can be called from the other side.
