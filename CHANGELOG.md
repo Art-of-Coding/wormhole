@@ -1,6 +1,10 @@
 # Change Log
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## 1.0.2
+
+* Add TypeScript definitions
+
 ## 1.0.1
 
 * Return outside execution if
