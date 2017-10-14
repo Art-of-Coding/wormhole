@@ -1,6 +1,7 @@
 /// <reference types="node" />
 
 import { ChildProcess } from 'child_process'
+import { EventEmitter } from 'events'
 
 declare class Wormhole {
   /**
@@ -9,6 +10,24 @@ declare class Wormhole {
    * @return {Wormhole}                            The new Wormhole instance
    */
   public constructor (channel?: NodeJS.Process|ChildProcess)
+
+  /**
+   * The connection state.
+   * @return {boolean} True if the channel is connected
+   */
+  public get connected (): boolean
+
+  /**
+   * The amount of pending command callbacks
+   * @return {number} Number of pending callbacks
+   */
+  public get pendingCallbacks (): number
+
+  /**
+   * Getter to get the events `EventEmitter`.
+   * @return {EventEmitter} The events emitter
+   */
+  public get events (): EventEmitter
 
   /**
    * Defines a command so it can be called from the other side.
