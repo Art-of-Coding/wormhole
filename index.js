@@ -2,6 +2,7 @@
 
 const EventEmitter = require('events').EventEmitter
 const ChildProcess = require('child_process').ChildProcess
+const Socket = require('net').Socket
 
 const Ultron = require('ultron')
 const shortid = require('shortid')
@@ -133,9 +134,10 @@ class Wormhole extends EventEmitter {
 
   /**
    * Writes a message over the channel.
-   * @param  {*} message The message to send
+   * @param  {*}           message The message to send
+   * @param  {net.Socket}  handle  A socket object
    */
-  write (message) {
+  write (message, handle) {
     if (message === undefined) {
       throw new TypeError('message must not be undefined')
     }
@@ -144,12 +146,20 @@ class Wormhole extends EventEmitter {
       throw new TypeError('message must not be empty')
     }
 
+    if (handle && !(handle instanceof Socket)) {
+      throw new TypeError('handle must be an instance of Socket')
+    }
+
     return new Promise((resolve, reject) => {
       if (!this.connected) {
         return reject(new Error('channel not connected'))
       }
 
-      this._channel.send(message, () => resolve())
+      if (handle) {
+        this._channel.send(message, handle, () => resolve())
+      } else {
+        this._channel.send(message, () => resolve())
+      }
     })
   }
 

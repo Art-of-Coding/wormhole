@@ -2,6 +2,7 @@
 
 import { ChildProcess } from 'child_process'
 import { EventEmitter } from 'events'
+import { Socket } from 'net'
 import Ultron from 'ultron'
 
 export declare class Wormhole extends EventEmitter {
@@ -62,9 +63,10 @@ export declare class Wormhole extends EventEmitter {
 
   /**
    * Writes a message over the channel.
-   * @param  {*} message The message to send
+   * @param  {*}           message The message to send
+   * @param  {net.Socket}  handle  A socket object
    */
-  public write (message: any): Promise<void>
+  public write (message: any, handle?: Socket): Promise<void>
 
   /**
    * Disconnects the channel.
