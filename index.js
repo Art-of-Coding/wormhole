@@ -174,7 +174,7 @@ class Wormhole extends EventEmitter {
     return this._channel.disconnect()
   }
 
-  _onMessage (message) {
+  _onMessage (message, handle) {
     if (message.requestId) {
       if (!this._executeCommandCallback(message)) {
         setImmediate(() => this.emit('error', new Error('unknown requestId received')))
@@ -195,7 +195,7 @@ class Wormhole extends EventEmitter {
       }
     }
 
-    this.emit('message', message)
+    this.emit('message', message, handle)
   }
 
   _executeCommandCallback (message) {
