@@ -1,6 +1,6 @@
 {
 	"name": "@art-of-coding/wormhole",
-	"version": "1.0.3",
+	"version": "1.0.4",
 	"description": "Simple but versatile IPC interface",
 	"author": {
 		"name": "Michiel van der Velde",

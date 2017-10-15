@@ -1,6 +1,11 @@
 # Change Log
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+# 1.0.4
+
+* [TS] Extend EventEmitter
+* [TS] Third argument for define() should be optional (closes #1)
+
 ## 1.0.3
 
 * Fix TypeScript definitions
