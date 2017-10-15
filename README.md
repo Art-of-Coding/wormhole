@@ -151,11 +151,12 @@ wormhole.command('add', 5, 6).then(result => {
 })
 ```
 
-### `wormhole.write (message)`
+### `wormhole.write (message, handle)`
 
 Writes a message over the channel.
 
 * `message`: The message primitive or object
+* `handle`: An instance of `net.Socket` to transfer (optional)
 
 ### `wormhole.disconnect ()`
 
