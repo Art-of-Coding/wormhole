@@ -14,6 +14,8 @@ It has the following features:
 
 wormhole is developed with `process` and `child_process` (over IPC) in mind.
 
+> TypeScript definitions included!
+
 ## Installing
 
 ```
@@ -81,6 +83,14 @@ wormhole.command('add', 5, 6).then(result => {
 Instantiates a new wormhole instance.
 
 * `channel`: The channel to use (must either be `process` or an instance of `child_process.ChildProcess`)
+
+#### Events
+
+A Wormhole instance is an `EventEmitter` with the following events:
+
+* `error`: There was an error
+* `message`: A received message that isn't handled by Wormhole
+* `disconnect`: The channel is disconnected
 
 ### `wormhole.connected`
 
