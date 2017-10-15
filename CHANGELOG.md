@@ -1,6 +1,10 @@
 # Change Log
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+# 1.1.0
+
+* Allow `write()` to add additional optional `net.Socket` handle (closes #3)
+
 # 1.0.4
 
 * [TS] Extend EventEmitter
