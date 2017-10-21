@@ -75,7 +75,7 @@ wormhole.command('add', 5, 6).then(result => {
 
 ## API
 
-> This API is applicable to version 1.0.x! For the 0.x.x documentation,
+> This API is applicable to version 1.x.x! For the 0.x.x documentation,
 > [see here](https://github.com/Art-of-Coding/wormhole/blob/c15d6146160e9d3f5e2dcdc326043ad26666be47/README.md).
 
 ### `new Wormhole (channel = process)`
