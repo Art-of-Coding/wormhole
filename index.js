@@ -258,7 +258,7 @@ class Wormhole extends EventEmitter {
       result = e
     }
 
-    if (result.then && result.then === 'function') {
+    if (result instanceof Promise) {
       return result
     }
 
