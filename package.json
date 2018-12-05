@@ -28,8 +28,7 @@
 	},
 	"homepage": "https://blog.artofcoding.nl/2017/08/26/enter-the-wormhole-ipc-goodness/",
 	"dependencies": {
-		"@types/node": "^8.0.46",
-		"shortid": "^2.2.8",
-		"ultron": "^1.1.0"
+		"shortid": "^2.2.14",
+		"ultron": "^1.1.1"
 	}
 }
