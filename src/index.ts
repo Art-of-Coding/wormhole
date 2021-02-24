@@ -215,7 +215,7 @@ export default class Wormhole extends EventEmitter {
       throw new Error(`Missing callback for request id '${message.resId}'`)
     }
 
-    this.#commandCallbacks.delete(message.reqId)
+    this.#commandCallbacks.delete(message.resId)
     setImmediate(() => cb(message))
   }
 
