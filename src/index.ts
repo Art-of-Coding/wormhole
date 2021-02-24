@@ -225,18 +225,6 @@ export default class Wormhole extends EventEmitter {
       throw new Error(`Missing function for command '${name ?? 'none'}'`)
     }
 
-    let result: any
-
-    try {
-      result = fn.apply(ctx, args)
-    } catch (e) {
-      result = e
-    }
-
-    if (result instanceof Error) {
-      throw result
-    }
-
-    return result
+    return fn.apply(ctx, args)
   }
 }
