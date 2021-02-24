@@ -153,7 +153,6 @@ export default class Wormhole extends EventEmitter {
     }
 
     this.#channel.disconnect()
-    this.#channel = null
   }
 
   private async onMessage (message: Message) {
