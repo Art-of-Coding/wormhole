@@ -160,7 +160,7 @@ export default class Wormhole extends EventEmitter {
       switch (message.cmd) {
         case 'call-command':
           // Call the command
-          await this.handleCommandCall(message.reqId, message.data.name, ...message.data.args)
+          await this.handleCommandCall(message.reqId, message.data.name, ...(message.data.args ?? []))
           break
         case 'command-result':
           // Handle command result
