@@ -5,23 +5,21 @@ import { ChildProcess } from 'child_process'
 
 import { nanoid } from 'nanoid/async'
 
-export interface Message<TData> {
+export interface Message {
   cmd: 'call-command' | 'command-result' | 'event',
   ok?: boolean,
   reqId?: string,
   resId?: string
-  data?: TData
-}
-
-export interface CommandData {
-  name?: string,
-  message?: string,
-  result?: any,
-  args?: any[]
+  data?: {
+    name?: string,
+    message?: string,
+    result?: any,
+    args?: any[]
+  }
 }
 
 interface CommandCallback {
-  (message: Message<CommandData>): any
+  (message: Message): void
 }
 
 export default class Wormhole extends EventEmitter {
@@ -84,7 +82,7 @@ export default class Wormhole extends EventEmitter {
    * @param args The arguments of the command
    */
   public async command<TResult = any> (name: string, ...args: any[]): Promise<TResult> {
-    const message: Message<CommandData> = {
+    const message: Message = {
       cmd: 'call-command',
       reqId: await nanoid(),
       data: { name }
@@ -95,7 +93,7 @@ export default class Wormhole extends EventEmitter {
     }
 
     return new Promise<TResult>((resolve, reject) => {
-      this.#commandCallbacks.set(message.reqId, (response: Message<CommandData>) => {
+      this.#commandCallbacks.set(message.reqId, response => {
         if (!response.ok) {
           reject(new Error(response.data.message))
         } else {
@@ -118,7 +116,7 @@ export default class Wormhole extends EventEmitter {
    * @param args The arguments of the event
    */
   public async event (name: string, ...args: any[]) {
-    const request: Message<{ name: string, args?: any[] }> = {
+    const request: Message = {
       cmd: 'event',
       data: {
         name
@@ -136,7 +134,7 @@ export default class Wormhole extends EventEmitter {
    * Write a message to the channel.
    * @param message The message
    */
-  public async write (message: Message<any>): Promise<void> {
+  public async write (message: Message): Promise<void> {
     if (!this.#channel) {
       throw new Error('No channel')
     }
@@ -157,7 +155,7 @@ export default class Wormhole extends EventEmitter {
     this.#channel.disconnect()
   }
 
-  private async onMessage (message: Message<CommandData>) {
+  private async onMessage (message: Message) {
     try {
       switch (message.cmd) {
         case 'call-command':
@@ -191,7 +189,7 @@ export default class Wormhole extends EventEmitter {
   }
 
   private async handleCommandCall (reqId: string, name: string, ...args: any[]): Promise<void> {
-    const response: Message<CommandData> = {
+    const response: Message = {
       cmd: 'command-result',
       resId: reqId,
       data: {}
@@ -209,7 +207,7 @@ export default class Wormhole extends EventEmitter {
     return this.write(response)
   }
 
-  private executeCommandCallback (message: Message<CommandData>) {
+  private executeCommandCallback (message: Message) {
     const cb = this.#commandCallbacks.get(message.resId)
 
     if (!cb) {
