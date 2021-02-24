@@ -92,7 +92,7 @@ export default class Wormhole extends EventEmitter {
       message.data.args = args
     }
 
-    return new Promise<TResult>((resolve, reject) => {
+    return new Promise<TResult>(async (resolve, reject) => {
       this.#commandCallbacks.set(message.reqId, response => {
         if (!response.ok) {
           reject(new Error(response.data.message))
@@ -102,7 +102,7 @@ export default class Wormhole extends EventEmitter {
       })
 
       try {
-        this.write(message)
+        await this.write(message)
       } catch (e) {
         this.#commandCallbacks.delete(message.reqId)
         reject(e)
@@ -153,6 +153,7 @@ export default class Wormhole extends EventEmitter {
     }
 
     this.#channel.disconnect()
+    this.#channel = null
   }
 
   private async onMessage (message: Message) {
