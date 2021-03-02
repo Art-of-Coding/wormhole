@@ -191,14 +191,19 @@ export default class Wormhole extends EventEmitter {
   private async handleCommandCall (reqId: string, name: string, ...args: any[]): Promise<void> {
     const response: Message = {
       cmd: 'command-result',
-      resId: reqId,
-      data: {}
+      resId: reqId
     }
 
     try {
       const result = await this.callCommand(name, ...args)
       response.ok = true
-      response.data.result = result
+
+      if (result) {
+        response.data = {
+          result
+        }
+      }
+
     } catch (e) {
       response.ok = false
       response.data.message = e.message
