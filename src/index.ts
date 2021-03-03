@@ -97,7 +97,7 @@ export default class Wormhole extends EventEmitter {
         if (!response.ok) {
           reject(new Error(response.data.message))
         } else {
-          resolve(response.data.result)
+          resolve(response.data?.result)
         }
       })
 
