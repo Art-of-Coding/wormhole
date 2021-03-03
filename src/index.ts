@@ -206,7 +206,9 @@ export default class Wormhole extends EventEmitter {
 
     } catch (e) {
       response.ok = false
-      response.data.message = e.message
+      response.data = {
+        message: e.message
+      }
     }
 
     return this.write(response)
