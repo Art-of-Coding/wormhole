@@ -81,7 +81,7 @@ export default class Wormhole extends EventEmitter {
    * @param name The name of the command
    * @param args The arguments of the command
    */
-  public async command<TResult = any> (name: string, ...args: any[]): Promise<TResult> {
+  public async command<TResult> (name: string, ...args: any[]): Promise<TResult> {
     const message: Message = {
       cmd: 'call-command',
       reqId: await nanoid(),
