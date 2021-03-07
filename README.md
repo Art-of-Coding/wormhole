@@ -130,7 +130,7 @@ Emit an event named `event`.
 * `event`: The name of the event
 * `...args`: The event arguments
 
-### `wormhole.command (name, ...args)`
+### `wormhole.command<TResult> (name, ...args): Promise<TResult>`
 
 Call a remote command named `name`.
 
@@ -138,7 +138,7 @@ Call a remote command named `name`.
 * `...args`: The command arguments
 
 ```js
-wormhole.command('add', 5, 6).then(result => {
+wormhole.command<number>('add', 5, 6).then(result => {
   console.log(`5 + 6 = ${result}`)
 })
 ```
