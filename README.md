@@ -63,7 +63,7 @@ wormhole.events.once('quit', () => {
 wormhole.event('startup')
 
 // Call a remote command
-wormhole.command('add', 5, 6).then(result => {
+wormhole.command<number>('add', 5, 6).then(result => {
   console.log(`5 + 6 = ${result}`)
 })
 ```
