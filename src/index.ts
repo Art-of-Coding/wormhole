@@ -1,11 +1,8 @@
-'use strict'
-
+import type { ChildProcess } from 'child_process'
 import { EventEmitter } from 'events'
-import { ChildProcess } from 'child_process'
-
 import { nanoid } from 'nanoid/async'
 
-export type Message = {
+type Message = {
   cmd: 'call-command' | 'command-result' | 'event',
   ok?: boolean,
   reqId?: string,
@@ -14,7 +11,7 @@ export type Message = {
     name?: string,
     message?: string,
     result?: any,
-    args?: any[]
+    args?: any[],
   }
 }
 
@@ -33,7 +30,7 @@ export default class Wormhole<P extends NodeJS.Process | ChildProcess> extends E
   #commandCallbacks = new Map<string, CommandCallback>()
   #events: EventEmitter = new EventEmitter()
 
-  public constructor (channel: P) {
+  public constructor(channel: P) {
     super()
 
     if (!channel.connected) {
@@ -48,19 +45,19 @@ export default class Wormhole<P extends NodeJS.Process | ChildProcess> extends E
     channel.once('disconnect', this.onDisconnect)
   }
 
-  public get connected (): boolean {
+  public get connected(): boolean {
     return this.#channel?.connected ?? false
   }
 
-  public get channel (): P {
+  public get channel(): P {
     return this.#channel
   }
 
-  public get pendingCallbacks (): number {
+  public get pendingCallbacks(): number {
     return this.#commandCallbacks.size
   }
 
-  public get events () {
+  public get events() {
     return this.#events
   }
 
@@ -70,7 +67,7 @@ export default class Wormhole<P extends NodeJS.Process | ChildProcess> extends E
    * @param fn The command function
    * @param ctx The command context
    */
-  public define (name: string, fn: (...args: any[]) => any, ctx?: any): this {
+  public define(name: string, fn: (...args: any[]) => any, ctx?: any): this {
     const mapped: Command = { fn }
 
     if (ctx) {
@@ -86,7 +83,7 @@ export default class Wormhole<P extends NodeJS.Process | ChildProcess> extends E
    * @param name The name of the command
    * @param args The arguments of the command
    */
-  public async command<TResult = void> (name: string, ...args: any[]): Promise<TResult> {
+  public async command<TResult = void>(name: string, ...args: any[]): Promise<TResult> {
     const message: Message = {
       cmd: 'call-command',
       reqId: await nanoid(),
@@ -120,7 +117,7 @@ export default class Wormhole<P extends NodeJS.Process | ChildProcess> extends E
    * @param name The name of the event
    * @param args The arguments of the event
    */
-  public async event (name: string, ...args: any[]) {
+  public async event(name: string, ...args: any[]) {
     const request: Message = {
       cmd: 'event',
       data: {
@@ -139,7 +136,7 @@ export default class Wormhole<P extends NodeJS.Process | ChildProcess> extends E
    * Write a message to the channel.
    * @param message The message
    */
-  public async write (message: Message): Promise<void> {
+  public async write(message: Message): Promise<void> {
     if (!this.#channel) {
       throw new Error('No channel')
     }
@@ -152,7 +149,7 @@ export default class Wormhole<P extends NodeJS.Process | ChildProcess> extends E
     })
   }
 
-  public disconnect () {
+  public disconnect() {
     if (!this.#channel) {
       throw new Error('No channel')
     }
@@ -160,7 +157,7 @@ export default class Wormhole<P extends NodeJS.Process | ChildProcess> extends E
     this.#channel.disconnect()
   }
 
-  private async onMessage (message: Message) {
+  private async onMessage(message: Message) {
     try {
       switch (message.cmd) {
         case 'call-command':
@@ -182,7 +179,7 @@ export default class Wormhole<P extends NodeJS.Process | ChildProcess> extends E
     }
   }
 
-  private onDisconnect () {
+  private onDisconnect() {
     if (this.#commandCallbacks.size) {
       this.#commandCallbacks.clear()
     }
@@ -193,7 +190,7 @@ export default class Wormhole<P extends NodeJS.Process | ChildProcess> extends E
     this.emit('disconnect')
   }
 
-  private async handleCommandCall (reqId: string, name: string, ...args: any[]): Promise<void> {
+  private async handleCommandCall(reqId: string, name: string, ...args: any[]): Promise<void> {
     const response: Message = {
       cmd: 'command-result',
       resId: reqId
@@ -219,7 +216,7 @@ export default class Wormhole<P extends NodeJS.Process | ChildProcess> extends E
     return this.write(response)
   }
 
-  private executeCommandCallback (message: Message) {
+  private executeCommandCallback(message: Message) {
     const cb = this.#commandCallbacks.get(message.resId)
 
     if (!cb) {
@@ -230,7 +227,7 @@ export default class Wormhole<P extends NodeJS.Process | ChildProcess> extends E
     setImmediate(() => cb(message))
   }
 
-  private async callCommand (name: string, ...args: any[]): Promise<any> {
+  private async callCommand(name: string, ...args: any[]): Promise<any> {
     const { fn, ctx } = this.#commands.get(name)
 
     if (!fn) {
