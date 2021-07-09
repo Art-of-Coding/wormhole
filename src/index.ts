@@ -5,7 +5,7 @@ import { ChildProcess } from 'child_process'
 
 import { nanoid } from 'nanoid/async'
 
-export interface Message {
+export type Message = {
   cmd: 'call-command' | 'command-result' | 'event',
   ok?: boolean,
   reqId?: string,
@@ -18,17 +18,22 @@ export interface Message {
   }
 }
 
-interface CommandCallback {
+type CommandCallback = {
   (message: Message): void
 }
 
-export default class Wormhole extends EventEmitter {
-  #channel: NodeJS.Process | ChildProcess
-  #commands: Map<string, { fn: Function, ctx?: any }> = new Map()
-  #commandCallbacks: Map<string, CommandCallback> = new Map()
+type Command = {
+  fn: Function,
+  ctx?: any,
+}
+
+export default class Wormhole<P extends NodeJS.Process | ChildProcess> extends EventEmitter {
+  #channel: P
+  #commands = new Map<string, Command>()
+  #commandCallbacks = new Map<string, CommandCallback>()
   #events: EventEmitter = new EventEmitter()
 
-  public constructor (channel: NodeJS.Process | ChildProcess) {
+  public constructor (channel: P) {
     super()
 
     if (!channel.connected) {
@@ -47,7 +52,7 @@ export default class Wormhole extends EventEmitter {
     return this.#channel?.connected ?? false
   }
 
-  public get channel (): NodeJS.Process | ChildProcess {
+  public get channel (): P {
     return this.#channel
   }
 
@@ -66,7 +71,7 @@ export default class Wormhole extends EventEmitter {
    * @param ctx The command context
    */
   public define (name: string, fn: (...args: any[]) => any, ctx?: any): this {
-    const mapped: { fn: any, ctx?: any } = { fn }
+    const mapped: Command = { fn }
 
     if (ctx) {
       mapped.ctx = ctx
@@ -81,7 +86,7 @@ export default class Wormhole extends EventEmitter {
    * @param name The name of the command
    * @param args The arguments of the command
    */
-  public async command<TResult> (name: string, ...args: any[]): Promise<TResult> {
+  public async command<TResult = void> (name: string, ...args: any[]): Promise<TResult> {
     const message: Message = {
       cmd: 'call-command',
       reqId: await nanoid(),
