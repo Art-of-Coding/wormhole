@@ -24,7 +24,7 @@ type Command = {
   ctx?: any,
 }
 
-export default class Wormhole<P extends NodeJS.Process | ChildProcess> extends EventEmitter {
+export default class Wormhole<P extends NodeJS.Process | ChildProcess = any> extends EventEmitter {
   #channel: P
   #commands = new Map<string, Command>()
   #commandCallbacks = new Map<string, CommandCallback>()
