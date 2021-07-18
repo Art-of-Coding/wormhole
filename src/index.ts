@@ -24,13 +24,13 @@ type Command = {
   ctx?: any,
 }
 
-export default class Wormhole<P extends NodeJS.Process | ChildProcess = any> extends EventEmitter {
-  #channel: P
+export default class Wormhole<Process extends NodeJS.Process | ChildProcess = any> extends EventEmitter {
+  #channel: Process
   #commands = new Map<string, Command>()
   #commandCallbacks = new Map<string, CommandCallback>()
   #events: EventEmitter = new EventEmitter()
 
-  public constructor(channel: P) {
+  public constructor(channel: Process) {
     super()
 
     if (!channel.connected) {
@@ -49,7 +49,7 @@ export default class Wormhole<P extends NodeJS.Process | ChildProcess = any> ext
     return this.#channel?.connected ?? false
   }
 
-  public get channel(): P {
+  public get channel(): Process {
     return this.#channel
   }
 
